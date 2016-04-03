@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -22,7 +21,8 @@ public class EventDatabase {
     public static abstract class Events implements BaseColumns {
 
         public static final String TABLE_NAME = "event";
-        public static final String COLUMN_NAME_ENTRY_ID = "eventid";
+        public static final String COLUMN_NAME_ID = "_id";
+        public static final String COLUMN_NAME_ENTRY_ID = "eventId";
         public static final String COLUMN_NAME_TITLE = "title";
         public static final String COLUMN_NAME_TIME = "time";
         public static final String COLUMN_NAME_DATE = "date";
@@ -38,13 +38,13 @@ class EventsDbHelper extends SQLiteOpenHelper {
     private static final String TEXT_TYPE = " TEXT";
     private static final String COMMA_SEP = ",";
     private static final String SQL_CREATE_ENTRIES =
-            "CREATE TABLE " + EventDatabase.Events.TABLE_NAME + " (" +
-                    "_ID  INTEGER PRIMARY KEY," +
+            "CREATE TABLE " + EventDatabase.Events.TABLE_NAME + " ( " +
+                    EventDatabase.Events.COLUMN_NAME_ID + "  INTEGER PRIMARY KEY autoincrement ," +
                     EventDatabase.Events.COLUMN_NAME_ENTRY_ID + TEXT_TYPE + COMMA_SEP +
                     EventDatabase.Events.COLUMN_NAME_TITLE + TEXT_TYPE + COMMA_SEP +
                     EventDatabase.Events.COLUMN_NAME_TIME + TEXT_TYPE + COMMA_SEP +
                     EventDatabase.Events.COLUMN_NAME_DATE + TEXT_TYPE + COMMA_SEP +
-                    EventDatabase.Events.COLUMN_NAME_DESCRIPTION + TEXT_TYPE + ");";
+                    EventDatabase.Events.COLUMN_NAME_DESCRIPTION + TEXT_TYPE + " );";
     private static final String SQL_DELETE_ENTRIES =
             "DROP TABLE IF EXISTS " + EventDatabase.Events.TABLE_NAME;
 
@@ -78,9 +78,9 @@ class EventsDbHelper extends SQLiteOpenHelper {
 
         ContentValues values = new ContentValues();
         values.put(EventDatabase.Events.COLUMN_NAME_ENTRY_ID, data.get("id"));
-        values.put(EventDatabase.Events.COLUMN_NAME_TITLE, data.get("title"));
+        values.put(EventDatabase.Events.COLUMN_NAME_TITLE, data.get("title").trim());
         values.put(EventDatabase.Events.COLUMN_NAME_TIME, data.get("time"));
-        values.put(EventDatabase.Events.COLUMN_NAME_DATE, data.get("date"));
+        values.put(EventDatabase.Events.COLUMN_NAME_DATE, data.get("date").trim());
         values.put(EventDatabase.Events.COLUMN_NAME_DESCRIPTION, data.get("content"));
 
 
@@ -89,14 +89,15 @@ class EventsDbHelper extends SQLiteOpenHelper {
                 EventDatabase.Events.TABLE_NAME,
                 null,
                 values);
-        db.close();
+
     }
 
-    public ArrayList<String> get(String date) {
-        ArrayList<String> result = new ArrayList<String>();
+    public Cursor get(String date) {
+
 
         SQLiteDatabase db = this.getReadableDatabase();
         String[] projection = {
+                EventDatabase.Events.COLUMN_NAME_ID,
                 EventDatabase.Events.COLUMN_NAME_ENTRY_ID,
                 EventDatabase.Events.COLUMN_NAME_TITLE,
                 EventDatabase.Events.COLUMN_NAME_TIME,
@@ -104,8 +105,8 @@ class EventsDbHelper extends SQLiteOpenHelper {
                 EventDatabase.Events.COLUMN_NAME_DESCRIPTION
         };
 
-        String selection = EventDatabase.Events.COLUMN_NAME_DATE + " = ?";
-        String[] args = {String.valueOf(date)};
+        String selection = EventDatabase.Events.COLUMN_NAME_DATE + " LIKE ?";
+        String[] args = {date};
         Cursor c = db.query(
                 EventDatabase.Events.TABLE_NAME,  // The table to query
                 projection,                               // The columns to return
@@ -115,16 +116,9 @@ class EventsDbHelper extends SQLiteOpenHelper {
                 null,                                     // don't filter by row groups
                 null
         );
-        c.moveToFirst();
 
-        while (c.moveToNext()) {
 
-            result.add(c.getString(c.getColumnIndex("title")) + "_" + c.getString(c.getColumnIndex("time")) + "_" + c.getString(c.getColumnIndex("date")) + "_" + c.getString(c.getColumnIndex("description")));
-
-        }
-
-        db.close();
-        return result;
+        return c;
 
     }
 
@@ -132,6 +126,7 @@ class EventsDbHelper extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getReadableDatabase();
         boolean result = false;
         String[] projection = {
+                EventDatabase.Events.COLUMN_NAME_ID,
                 EventDatabase.Events.COLUMN_NAME_ENTRY_ID,
                 EventDatabase.Events.COLUMN_NAME_TITLE,
                 EventDatabase.Events.COLUMN_NAME_TIME,
@@ -155,12 +150,63 @@ class EventsDbHelper extends SQLiteOpenHelper {
         c.moveToFirst();
 
         while (c.moveToNext()) {
-
-            result = c.getString(c.getColumnIndex("title")).equals(title) && c.getString(c.getColumnIndex("date")).equals(date);
+            if (c.getString(c.getColumnIndex("title")).equals(title) && c.getString(c.getColumnIndex("date")).equals(date))
+                result = true;
         }
         Log.d("Function Title equal", "" + result);
-        db.close();
+
         return result;
     }
 
+    public void updateAppoinment(HashMap<String, String> data) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(EventDatabase.Events.COLUMN_NAME_ENTRY_ID, data.get("title") + "@" + data.get("date"));
+        values.put(EventDatabase.Events.COLUMN_NAME_TITLE, data.get("title"));
+        values.put(EventDatabase.Events.COLUMN_NAME_TIME, data.get("time"));
+        values.put(EventDatabase.Events.COLUMN_NAME_DATE, data.get("date"));
+        values.put(EventDatabase.Events.COLUMN_NAME_DESCRIPTION, data.get("content"));
+        String id = data.get("id");
+        String selection = EventDatabase.Events.COLUMN_NAME_ENTRY_ID + " = ?";
+        String[] selectionArgs = {id};
+
+        int count = db.update(
+                EventDatabase.Events.TABLE_NAME,
+                values,
+                selection,
+                selectionArgs);
+    }
+
+    public void deleteSingle(String val) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String selection = EventDatabase.Events.COLUMN_NAME_ENTRY_ID + " = ?";
+        String[] selectionArgs = {val};
+
+        int count = db.delete(
+                EventDatabase.Events.TABLE_NAME,
+                selection,
+                selectionArgs);
+        db.close();
+    }
+
+    public void deleteAll(String date) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        String selection = EventDatabase.Events.COLUMN_NAME_DATE + " = ?";
+        String[] selectionArgs = {date};
+
+        db.delete(
+                EventDatabase.Events.TABLE_NAME,
+                selection,
+                selectionArgs);
+
+        db.close();
+    }
+
+
+
 }
+//TODO order to remember : 0=> eventid | 1=> title | 2=> time | 3=> date | 4=> description

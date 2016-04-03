@@ -16,6 +16,9 @@
             </intent-filter>
         </activity>
         <activity android:name=".EditEventActivity"></activity>
+        <activity android:name=".DeleteActivity"></activity>
+
+        <uses-permission android:name="android.permission.INTERNET" />
     </application>
 
 </manifest>

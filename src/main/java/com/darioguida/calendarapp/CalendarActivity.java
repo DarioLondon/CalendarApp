@@ -3,6 +3,7 @@ package com.darioguida.calendarapp;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -13,7 +14,6 @@ import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,26 +24,37 @@ import java.util.Objects;
 
 
 public class CalendarActivity extends AppCompatActivity {
-
-    String today = todayDate();
-    String time = timeNow();
-    private TextView titleView;
-    private TextView descView;
-    private TimePicker timePicker;
+    public String today = todayDate();
+    public String time = timeNow();
+    public TextView titleView;
+    public TextView descView;
+    public TimePicker timePicker;
+    private Cursor data;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.calendar_view);
-
+        new EventsDbHelper(this);
         CalendarView calendar = (CalendarView) findViewById(R.id.calendarView);
 
 
         Button newEvent = (Button) findViewById(R.id.newEvent);
         Button viewList = (Button) findViewById(R.id.viewEvent);
-        Button moveEvent = (Button) findViewById(R.id.moveEvent);
+        Button deleteEvent = (Button) findViewById(R.id.deleteButton);
 
+        if (deleteEvent != null) {
 
+            deleteEvent.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(CalendarActivity.this, DeleteActivity.class);
+                    intent.putExtra(DeleteActivity.DATE_, today);
+                    CalendarActivity.this.startActivity(intent);
+                }
+            });
+
+        }
 
         if (calendar != null) {
             calendar.setOnDateChangeListener(new CalendarView.OnDateChangeListener() {
@@ -82,6 +93,7 @@ public class CalendarActivity extends AppCompatActivity {
 
     //When the user click on add this function will create a AlertDialog with a form to insert data
     public void open(View view) {
+
         View layoutAlertBox = View.inflate(this, R.layout.new_appointment_layout, null);
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 
@@ -89,6 +101,7 @@ public class CalendarActivity extends AppCompatActivity {
         titleView = (TextView) layoutAlertBox.findViewById(R.id.edit_title);
         descView = (TextView) layoutAlertBox.findViewById(R.id.description);
         timePicker = (TimePicker) layoutAlertBox.findViewById(R.id.timePicker);
+        timePicker.setIs24HourView(true);
         timePicker.setOnTimeChangedListener(new TimePicker.OnTimeChangedListener() {
             @Override
             public void onTimeChanged(TimePicker view, int hourOfDay, int minute) {
@@ -116,7 +129,7 @@ public class CalendarActivity extends AppCompatActivity {
                         String title = titleView.getText().toString();
                         String description = descView.getText().toString();
                         String date = today;
-                        String id = title + "_" + date;
+                        String id = title + "@" + date;
                         String _time = time;
                         HashMap<String, String> data;
                         data = new HashMap<>();
@@ -125,8 +138,8 @@ public class CalendarActivity extends AppCompatActivity {
                         data.put("time", _time);
                         data.put("date", date);
                         data.put("content", description);
-
                         new WriteData(data, alertDialog).execute();
+
 
                     }
 
@@ -150,8 +163,9 @@ public class CalendarActivity extends AppCompatActivity {
         Calendar c = Calendar.getInstance();
         System.out.println("Current time => " + c.getTime());
 
-        SimpleDateFormat df = new SimpleDateFormat("dd/M/yyyy");
+        SimpleDateFormat df = new SimpleDateFormat("d/M/yyyy");
         String formattedDate = df.format(c.getTime());
+        System.out.println(formattedDate);
         return formattedDate;
     }
 
@@ -165,113 +179,157 @@ public class CalendarActivity extends AppCompatActivity {
         return time;
     }
 
-    public void ShowAlertDialogWithListview(ArrayList<String[]> listItems) {
-        AlertDialog.Builder builderSingle = new AlertDialog.Builder(CalendarActivity.this);
-        ArrayList<String[]> res = listItems;
-        builderSingle.setTitle("Select Event");
 
-        final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
-                CalendarActivity.this,
-                android.R.layout.select_dialog_singlechoice);
-        if (res.size() > 0) {
-            for (String[] el : res) {
-                arrayAdapter.add(el[0]);
-
-            }
-        } else {
-            builderSingle.setMessage("You have not Appointments today");
-        }
-        builderSingle.setNegativeButton(
-                "Back",
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                    }
-                });
-
-        builderSingle.setAdapter(
-                arrayAdapter,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        String strName = arrayAdapter.getItem(which);
-                        Intent intent = new Intent(CalendarActivity.this, EditEventActivity.class);
-                        intent.putExtra(EditEventActivity._ID, String.valueOf(which + 1));
-                        intent.putExtra(EditEventActivity._TITLE, strName);
-                        intent.putExtra(EditEventActivity._DATE, today);
-                        CalendarActivity.this.startActivity(intent);
-
-                    }
-                });
-        builderSingle.show();
-    }
 
     //Thread to write data in the DataBase
-    private class WriteData extends AsyncTask<Object, Object, Boolean> {
+
+
+    public class WriteData extends AsyncTask<Object, Object, Boolean> {
+
+
         HashMap<String, String> data;
         AlertDialog alertDialog;
 
         WriteData(HashMap<String, String> _data, AlertDialog _alertDialog) {
             data = _data;
             alertDialog = _alertDialog;
+
         }
 
         @Override
         protected Boolean doInBackground(Object... params) {
-
+            EventsDbHelper db = new EventsDbHelper(CalendarActivity.this.getApplicationContext());
             Boolean result = false;
 
-            boolean titleIsEqual = new EventsDbHelper(getApplicationContext()).checkDuplicateTitle(data.get("title"), data.get("date"));
-            if (titleIsEqual) {
+
+            if (db.checkDuplicateTitle(data.get("title"), data.get("date"))) {
+
                 result = true;
+                db.close();
+
             } else {
 
-                new EventsDbHelper(getApplicationContext()).insert(data);
+                db.insert(data);
                 result = false;
+
             }
+            db.close();
             return result;
         }
 
         @Override
         protected void onPostExecute(Boolean r) {
+
+
             String result;
             if (!r) {
                 result = "Event Saved !";
-                Toast.makeText(CalendarActivity.this, result, Toast.LENGTH_LONG).show();
+                //Toast.makeText(CalendarActivity.this, result, Toast.LENGTH_LONG).show();
                 alertDialog.dismiss();
+
             } else {
                 result = "The title you typed has been already chosen ";
-                Toast.makeText(CalendarActivity.this, result, Toast.LENGTH_LONG).show();
+                //Toast.makeText(CalendarActivity.this, result, Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    private class GetData extends AsyncTask<Object, Objects, ArrayList<String[]>> {
+    public class GetData extends AsyncTask<Object, Objects, ArrayList<String[]>> {
+
+
         String day;
 
         GetData(String date) {
             this.day = date;
+
         }
 
         @Override
         protected ArrayList<String[]> doInBackground(Object... params) {
+            EventsDbHelper db = new EventsDbHelper(getApplicationContext());
+            ArrayList<String> list = new ArrayList<>();
+            ArrayList<String[]> res = new ArrayList<>();
+            data = db.get(day);
 
-            ArrayList<String> data = new EventsDbHelper(getApplicationContext()).get(day);
-            ArrayList<String[]> list = new ArrayList<>();
+            if (data.moveToFirst()) {
+                if (data != null && data.getCount() > 0)
+                    do {
+                        list.add(data.getString(data.getColumnIndex(EventDatabase.Events.COLUMN_NAME_ENTRY_ID)) + "_" + data.getString(data.getColumnIndex(EventDatabase.Events.COLUMN_NAME_TITLE)) + "_" + data.getString(data.getColumnIndex(EventDatabase.Events.COLUMN_NAME_TIME)) + "_" + data.getString(data.getColumnIndex(EventDatabase.Events.COLUMN_NAME_DATE)) + "_" + data.getString(data.getColumnIndex(EventDatabase.Events.COLUMN_NAME_DESCRIPTION)));
 
-            for (String l : data) {
-                String[] s = l.split("_");
-                list.add(s);
+                    } while (data.moveToNext());
+
+
+                for (String l : list) {
+                    String[] s = l.split("_");
+                    System.out.println(s[0]);
+                    System.out.println(s[1]);
+                    res.add(s);
+
+                }
+
+                data.close();
+            }
+            return res;
+        }
+
+        protected void onPostExecute(ArrayList<String[]> _res) {
+            final AlertDialog.Builder builderSingle = new AlertDialog.Builder(CalendarActivity.this);
+            builderSingle.setCancelable(true);
+            final ArrayList<String[]> res = _res;
+            builderSingle.setTitle("Select Event");
+
+            final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                    CalendarActivity.this,
+                    android.R.layout.select_dialog_singlechoice);
+
+            for (String[] el : res) {
+                arrayAdapter.add(el[1]);
+                System.out.println(el[1]);
 
             }
-            return list;
+
+
+            builderSingle.setPositiveButton(
+                    "BACK",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                            //dialog.dismiss();
+                        }
+                    });
+
+
+            builderSingle.setAdapter(
+                    arrayAdapter,
+                    new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+
+                            String[] data = res.get(which);
+
+                            Intent intent = new Intent(CalendarActivity.this, EditEventActivity.class);
+                            intent.putExtra(EditEventActivity._ID, data[0]);
+                            intent.putExtra(EditEventActivity._TITLE, data[1]);
+                            intent.putExtra(EditEventActivity._TIME, data[2]);
+                            intent.putExtra(EditEventActivity._DATE, data[3]);
+                            intent.putExtra(EditEventActivity._DESCRIPTION, data[4]);
+                            CalendarActivity.this.startActivity(intent);
+
+                        }
+                    });
+
+            final AlertDialog alert = builderSingle.create();
+            alert.show();
+            // System.out.println(today);
+            //ShowAlertDialogWithListview(res);
+
+
+
         }
 
-        protected void onPostExecute(ArrayList<String[]> res) {
-            ShowAlertDialogWithListview(res);
-            System.out.println(today);
-        }
     }
 
 

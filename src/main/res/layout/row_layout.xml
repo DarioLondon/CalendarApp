@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/deleteSingleButton"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@+id/titleLabel"
+        android:layout_marginEnd="34dp"
+        android:nestedScrollingEnabled="true"
+        android:paddingLeft="10dp"
+        android:text="Delete"
+        android:theme="@style/Widget.AppCompat.ListView" />
+
+    <TextView
+        android:id="@+id/titleLabel"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text="New Text" />
+
+    <TextView
+        android:id="@+id/descLabel"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/titleLabel"
+        android:layout_marginTop="19dp"
+        android:text="New Text" />
+
+    <TextView
+        android:id="@+id/timeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/deleteSingleButton"
+        android:text="New Text" />
+</RelativeLayout>

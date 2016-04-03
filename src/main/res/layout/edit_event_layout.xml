@@ -63,7 +63,7 @@
         android:text="Save" />
 
     <CheckBox
-        android:id="@+id/checkBox"
+        android:id="@+id/checkBoxDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/include"
