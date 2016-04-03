@@ -122,6 +122,27 @@ class EventsDbHelper extends SQLiteOpenHelper {
 
     }
 
+    public Cursor getAll() {
+
+
+        SQLiteDatabase db = this.getReadableDatabase();
+
+
+        Cursor c = db.query(
+                EventDatabase.Events.TABLE_NAME,  // The table to query
+                null,                               // The columns to return
+                null,                                // The columns for the WHERE clause
+                null,                                     // The values for the WHERE clause
+                null,                                     // don't group the rows
+                null,                                     // don't filter by row groups
+                null
+        );
+
+
+        return c;
+
+    }
+
     public boolean checkDuplicateTitle(String title, String date) {
         SQLiteDatabase db = this.getReadableDatabase();
         boolean result = false;

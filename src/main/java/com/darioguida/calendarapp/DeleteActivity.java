@@ -27,8 +27,7 @@ public class DeleteActivity extends AppCompatActivity {
     private ListAdapter mAdapter;
     private Cursor data;
     private String date;
-    private Button deleteAll;
-    private EditText eventNumber;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -42,9 +41,17 @@ public class DeleteActivity extends AppCompatActivity {
         final Button deleteAllButton = (Button) findViewById(R.id.deleteAll);
         final Button deleteButton = (Button) findViewById(R.id.buttonSingle);
         final EditText numberOfItem = (EditText) findViewById(R.id.eventToDelete);
-        /*if (numberOfItem != null) {
-            final int val=Integer.parseInt(numberOfItem.getText().toString());
-        }*/
+        final Button del = (Button) findViewById(R.id.inRowButton);
+        if (del != null) {
+            del.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+                    v.setTag(1);
+                    System.out.println("test button del ");
+                }
+            });
+        }
 
         if (deleteAllButton != null) {
             deleteAllButton.setOnClickListener(new View.OnClickListener() {
@@ -60,7 +67,15 @@ public class DeleteActivity extends AppCompatActivity {
             deleteButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    showAlertConfirmationSingle();
+
+                    if (numberOfItem != null && numberOfItem.getText().toString().matches("[0-9]")) {
+                        final int val = Integer.parseInt(numberOfItem.getText().toString());
+                        showAlertConfirmationSingle(val - 1);
+                        numberOfItem.setText("");
+                    } else {
+                        errorDialog();
+                    }
+
 
                 }
             });
@@ -71,16 +86,30 @@ public class DeleteActivity extends AppCompatActivity {
     public void showList() {
 
         list = (ListView) findViewById(R.id.listView);
-        final Button deleteItem = (Button) findViewById(R.id.deleteSingleButton);
-        if (deleteItem != null) {
-            deleteItem.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    deleteSingle(1);
-                    System.out.println("test");
+        list.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Button del = (Button) parent.findViewById(R.id.inRowButton);
+
+                if (view != null) {
+                    del.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            System.out.println("teste48940789");
+
+                        }
+                    });
                 }
-            });
-        }
+
+
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         data = new EventsDbHelper(getApplicationContext()).get(date);
         ArrayList<String> l = new ArrayList<>();
         if (data.moveToFirst()) {
@@ -104,7 +133,8 @@ public class DeleteActivity extends AppCompatActivity {
         list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                deleteSingle(position);
+
+
                 System.out.println("test6666");
             }
         });
@@ -147,7 +177,43 @@ public class DeleteActivity extends AppCompatActivity {
         alert.show();
     }
 
-    public void showAlertConfirmationSingle() {
+    public void showAlertConfirmationSingle(final int value) {
+        final AlertDialog.Builder builderSingle = new AlertDialog.Builder(DeleteActivity.this);
+        builderSingle.setCancelable(true);
+        builderSingle.setMessage("Are you sure you want to delete this event ?");
+        builderSingle.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                deleteSingle(value);
+                dialog.dismiss();
+                showList();
+            }
+        });
+        builderSingle.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                dialog.dismiss();
+
+            }
+        });
+        final AlertDialog alert = builderSingle.create();
+        alert.show();
+    }
+
+    public void errorDialog() {
+
+        final AlertDialog.Builder builderSingle = new AlertDialog.Builder(DeleteActivity.this);
+        builderSingle.setCancelable(true);
+        builderSingle.setMessage("The event inserted does not exist");
+        builderSingle.setPositiveButton("DISMISS", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                dialog.dismiss();
+
+            }
+        });
     }
 
 }

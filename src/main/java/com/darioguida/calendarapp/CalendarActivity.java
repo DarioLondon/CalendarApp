@@ -12,6 +12,8 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CalendarView;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -30,6 +32,8 @@ public class CalendarActivity extends AppCompatActivity {
     public TextView descView;
     public TimePicker timePicker;
     private Cursor data;
+    private EditText searchBox;
+    private ImageButton searchButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +46,20 @@ public class CalendarActivity extends AppCompatActivity {
         Button newEvent = (Button) findViewById(R.id.newEvent);
         Button viewList = (Button) findViewById(R.id.viewEvent);
         Button deleteEvent = (Button) findViewById(R.id.deleteButton);
+        Button thesaurus = (Button) findViewById(R.id.thesaurus);
+        ImageButton search = (ImageButton) findViewById(R.id.searchButton);
+
+        if (search != null) {
+            search.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    Intent i = new Intent(getApplication(), SearchActivity.class);
+                    CalendarActivity.this.startActivity(i);
+
+                }
+            });
+        }
 
         if (deleteEvent != null) {
 
@@ -87,6 +105,16 @@ public class CalendarActivity extends AppCompatActivity {
                 }
             });
         }
+        if (thesaurus != null) {
+            thesaurus.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent i = new Intent(CalendarActivity.this, SuggestionActivity.class);
+                    CalendarActivity.this.startActivity(i);
+                }
+            });
+        }
+
 
     }
 
@@ -180,7 +208,6 @@ public class CalendarActivity extends AppCompatActivity {
     }
 
 
-
     //Thread to write data in the DataBase
 
 
@@ -254,7 +281,7 @@ public class CalendarActivity extends AppCompatActivity {
             if (data.moveToFirst()) {
                 if (data != null && data.getCount() > 0)
                     do {
-                        list.add(data.getString(data.getColumnIndex(EventDatabase.Events.COLUMN_NAME_ENTRY_ID)) + "_" + data.getString(data.getColumnIndex(EventDatabase.Events.COLUMN_NAME_TITLE)) + "_" + data.getString(data.getColumnIndex(EventDatabase.Events.COLUMN_NAME_TIME)) + "_" + data.getString(data.getColumnIndex(EventDatabase.Events.COLUMN_NAME_DATE)) + "_" + data.getString(data.getColumnIndex(EventDatabase.Events.COLUMN_NAME_DESCRIPTION)));
+                        list.add(data.getString(data.getColumnIndex(EventDatabase.Events.COLUMN_NAME_ENTRY_ID)) + "_" + data.getString(data.getColumnIndex(EventDatabase.Events.COLUMN_NAME_TITLE)) + "_" + data.getString(data.getColumnIndex(EventDatabase.Events.COLUMN_NAME_TIME)) + "_" + data.getString(data.getColumnIndex(EventDatabase.Events.COLUMN_NAME_DATE)) + "_" + data.getString(data.getColumnIndex(EventDatabase.Events.COLUMN_NAME_DESCRIPTION)) + "_" + " ");
 
                     } while (data.moveToNext());
 
@@ -327,10 +354,10 @@ public class CalendarActivity extends AppCompatActivity {
             //ShowAlertDialogWithListview(res);
 
 
-
         }
 
     }
 
 
 }
+
