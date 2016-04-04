@@ -43,25 +43,7 @@ public class SearchActivity extends Activity {
 
     }
 
-    public boolean match(String text, String wordToFind) {
 
-        String searchMe = text;
-        String findMe = wordToFind;
-        int searchMeLength = searchMe.length();
-        int findMeLength = findMe.length();
-        boolean foundIt = false;
-        for (int i = 0; i <= (searchMeLength - findMeLength); i++) {
-            if (searchMe.regionMatches(i, findMe, 0, findMeLength)) {
-                foundIt = true;
-                break;
-            }
-        }
-        if (!foundIt) {
-            foundIt = false;
-        }
-
-        return foundIt;
-    }
 
     public void reset(ListView listView) {
         ArrayList<String> values = new ArrayList<String>();

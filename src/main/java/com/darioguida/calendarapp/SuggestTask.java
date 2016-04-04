@@ -11,6 +11,7 @@ import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -111,7 +112,11 @@ public class SuggestTask implements Runnable {
                     NodeList textFNList = firstNameElement.getChildNodes();
                     String[] s = textFNList.item(0).getNodeValue().trim().split("[\\s+|,\\s*|\\.\\s*\\s(\\s)]");
                     for (String l : s) {
-                        messages.add(l);
+                        if (l.equals("similar") || l.equals("term") || l.equals("") || l.equals("antonym")) {
+
+                        } else {
+                            messages.add(l);
+                        }
                     }
 
                 }
@@ -119,6 +124,10 @@ public class SuggestTask implements Runnable {
             // Check if task has been interrupted
             if (Thread.interrupted())
                 throw new InterruptedException();
+        } catch (FileNotFoundException e) {
+
+            error = "Word not found";
+            Log.e(TAG, "FileNotFoundException", e);
 
         } catch (IOException e) {
             Log.e(TAG, "IOException", e);

@@ -23,11 +23,11 @@ public class DeleteActivity extends AppCompatActivity {
 
     public static final String DATE_ = "date";
     ArrayList<String> ids = new ArrayList<>();
+    int count;
     private ListView list;
     private ListAdapter mAdapter;
     private Cursor data;
     private String date;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,6 +91,7 @@ public class DeleteActivity extends AppCompatActivity {
 
 
         }
+        count = data.getCount();
         String[] from = {EventDatabase.Events.COLUMN_NAME_TITLE, EventDatabase.Events.COLUMN_NAME_DESCRIPTION, EventDatabase.Events.COLUMN_NAME_TIME};
 
         int[] to = {R.id.titleLabel, R.id.descLabel, R.id.timeLabel};
@@ -153,9 +154,14 @@ public class DeleteActivity extends AppCompatActivity {
         builderSingle.setPositiveButton("YES", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                deleteSingle(value);
-                dialog.dismiss();
-                showList();
+                if (count >= value) {
+                    deleteSingle(value);
+                    dialog.dismiss();
+                    showList();
+                } else {
+                    dialog.dismiss();
+                    errorDialogWrongNumber();
+                }
             }
         });
         builderSingle.setNegativeButton("NO", new DialogInterface.OnClickListener() {
@@ -175,6 +181,21 @@ public class DeleteActivity extends AppCompatActivity {
         final AlertDialog.Builder builderSingle = new AlertDialog.Builder(DeleteActivity.this);
         builderSingle.setCancelable(true);
         builderSingle.setMessage("The event inserted does not exist");
+        builderSingle.setPositiveButton("DISMISS", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                dialog.dismiss();
+
+            }
+        });
+    }
+
+    public void errorDialogWrongNumber() {
+
+        final AlertDialog.Builder builderSingle = new AlertDialog.Builder(DeleteActivity.this);
+        builderSingle.setCancelable(true);
+        builderSingle.setMessage("Invalid Number");
         builderSingle.setPositiveButton("DISMISS", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
