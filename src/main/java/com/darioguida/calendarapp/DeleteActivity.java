@@ -41,17 +41,7 @@ public class DeleteActivity extends AppCompatActivity {
         final Button deleteAllButton = (Button) findViewById(R.id.deleteAll);
         final Button deleteButton = (Button) findViewById(R.id.buttonSingle);
         final EditText numberOfItem = (EditText) findViewById(R.id.eventToDelete);
-        final Button del = (Button) findViewById(R.id.inRowButton);
-        if (del != null) {
-            del.setOnClickListener(new View.OnClickListener() {
 
-                @Override
-                public void onClick(View v) {
-                    v.setTag(1);
-                    System.out.println("test button del ");
-                }
-            });
-        }
 
         if (deleteAllButton != null) {
             deleteAllButton.setOnClickListener(new View.OnClickListener() {
@@ -86,29 +76,8 @@ public class DeleteActivity extends AppCompatActivity {
     public void showList() {
 
         list = (ListView) findViewById(R.id.listView);
-        list.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                Button del = (Button) parent.findViewById(R.id.inRowButton);
-
-                if (view != null) {
-                    del.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            System.out.println("teste48940789");
-
-                        }
-                    });
-                }
 
 
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
 
         data = new EventsDbHelper(getApplicationContext()).get(date);
         ArrayList<String> l = new ArrayList<>();

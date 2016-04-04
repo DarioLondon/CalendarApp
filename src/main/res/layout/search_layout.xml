@@ -7,8 +7,7 @@
     <EditText
         android:id="@+id/searchBox"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.04" />
+        android:layout_height="40dp" />
 
     <ImageButton
         android:id="@+id/searchButton"
@@ -23,7 +22,5 @@
     <ListView
         android:id="@+id/listView2"
         android:layout_width="match_parent"
-        android:layout_height="319dp"
-        android:layout_gravity="right"
-        android:layout_weight="0.02" />
+        android:layout_height="219dp" />
 </LinearLayout>

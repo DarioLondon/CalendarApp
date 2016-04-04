@@ -1,41 +1,104 @@
-<?xml version="1.0" encoding="utf-8"?><!--
- ! Excerpted from "Hello, Android",
- ! published by The Pragmatic Bookshelf.
- ! Copyrights apply to this code. It may not be used to create training material, 
- ! courses, books, articles, and the like. Contact us if you are in doubt.
- ! We make no guarantees that this code is fit for any purpose. 
- ! Visit http://www.pragmaticprogrammer.com/titles/eband4 for more book information.
--->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:orientation="vertical"
-    android:padding="10dip">
-
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/original_label" />
+    android:focusableInTouchMode="true"
+    android:orientation="horizontal">
 
     <EditText
         android:id="@+id/original_text"
-        android:layout_width="fill_parent"
+        android:layout_width="200dp"
         android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/include2"
+        android:layout_below="@+id/description"
         android:hint="@string/original_hint"
         android:inputType="textNoSuggestions"
         android:padding="10dip"
         android:textSize="18sp" />
 
+
+    <Button
+        android:id="@+id/buttonSearch"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignStart="@+id/include2"
+        android:layout_below="@+id/include2"
+        android:layout_gravity="right"
+        android:layout_marginTop="42dp"
+        android:text="Search Synonyms" />
+
     <TextView
-        android:layout_width="fill_parent"
+        android:id="@+id/textView8"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/result_label" />
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text="Title"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <EditText
+        android:id="@+id/edit_title"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/textView8"
+        android:inputType="text"
+        android:textIsSelectable="true" />
+
+    <TextView
+        android:id="@+id/Description"
+        android:layout_width="200dp"
+        android:layout_height="30dp"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/edit_title"
+        android:text="Small Text"
+        android:textAppearance="?android:attr/textAppearanceSmall" />
+
+    <EditText
+        android:id="@+id/description"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/Description"
+        android:layout_below="@+id/Description"
+        android:inputType="text"
+        android:textIsSelectable="true" />
+
+    <Button
+        android:id="@+id/button"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignTop="@+id/textView8"
+        android:text="Thesaurus" />
+
+    <include
+        android:id="@+id/include2"
+        layout="@layout/time_picker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignStart="@+id/description"
+        android:layout_below="@+id/description"
+        android:layout_marginTop="55dp" />
 
     <ListView
         android:id="@+id/result_list"
-        android:layout_width="fill_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_alignParentBottom="true"
+        android:layout_alignStart="@+id/buttonSearch"
+        android:layout_below="@+id/buttonSearch" />
+
+    <Button
+        android:id="@+id/save"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/original_text"
+        android:layout_toEndOf="@+id/description"
+        android:text="Save" />
 
 
-</LinearLayout>
+</RelativeLayout>

@@ -39,6 +39,8 @@ public class EditEventActivity extends Activity {
     private int _day;
     private int _month;
     private int _year;
+    private String timestamp;
+    private String eventTitle;
 
     @TargetApi(Build.VERSION_CODES.M)
     @Override
@@ -48,7 +50,7 @@ public class EditEventActivity extends Activity {
         setContentView(R.layout.edit_event_layout);
 
         _id = getIntent().getStringExtra(_ID);
-        String eventTitle = getIntent().getStringExtra(_TITLE);
+        eventTitle = getIntent().getStringExtra(_TITLE);
         eventDate = getIntent().getStringExtra(_DATE);
         String eventDescription = getIntent().getStringExtra(_DESCRIPTION);
         String eventTime = getIntent().getStringExtra(_TIME);
@@ -79,6 +81,7 @@ public class EditEventActivity extends Activity {
             public void onTimeChanged(TimePicker view, int hourOfDay, int _minute) {
                 hour = hourOfDay;
                 minute = _minute;
+                timestamp = hour + "" + minute;
             }
         });
         title.setText(eventTitle);
@@ -185,13 +188,33 @@ public class EditEventActivity extends Activity {
 
             EventsDbHelper db = new EventsDbHelper(getApplicationContext());
             Boolean result;
-            // boolean checkTitle = db.checkDuplicateTitle(this.new_title, this.new_date);
+            if (this.new_title.equals(eventTitle)) {
+                HashMap<String, String> data = new HashMap<>();
+                data.put("id", id);
+                System.out.println(id);
+                data.put("title", new_title);
+                System.out.println(new_title);
+                data.put("time", new_time);
+                System.out.println(new_time);
+                data.put("date", new_date);
+                System.out.println(new_date);
+                data.put("content", new_description);
+                data.put("timestamp", timestamp);
+                System.out.println(new_description);
+                db.updateAppoinment(data);
 
-           /* if (checkTitle) {
+                result = false;
+
+                //}
+                db.close();
+            } else {
+                boolean checkTitle = db.checkDuplicateTitle(this.new_title, this.new_date);
+
+                if (checkTitle) {
                 System.out.println(checkTitle);
                 result = true;
 
-            } else {*/
+                } else {
 
 
             HashMap<String, String> data = new HashMap<>();
@@ -204,6 +227,7 @@ public class EditEventActivity extends Activity {
             data.put("date", new_date);
             System.out.println(new_date);
             data.put("content", new_description);
+                    data.put("timestamp", timestamp);
             System.out.println(new_description);
             db.updateAppoinment(data);
 
@@ -211,6 +235,8 @@ public class EditEventActivity extends Activity {
 
             //}
             db.close();
+                }
+            }
             return result;
         }
 

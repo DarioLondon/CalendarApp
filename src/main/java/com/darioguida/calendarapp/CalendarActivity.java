@@ -39,14 +39,14 @@ public class CalendarActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.calendar_view);
-        new EventsDbHelper(this);
+
         CalendarView calendar = (CalendarView) findViewById(R.id.calendarView);
 
 
         Button newEvent = (Button) findViewById(R.id.newEvent);
         Button viewList = (Button) findViewById(R.id.viewEvent);
         Button deleteEvent = (Button) findViewById(R.id.deleteButton);
-        Button thesaurus = (Button) findViewById(R.id.thesaurus);
+
         ImageButton search = (ImageButton) findViewById(R.id.searchButton);
 
         if (search != null) {
@@ -88,8 +88,10 @@ public class CalendarActivity extends AppCompatActivity {
             newEvent.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-
-                    open(v);
+                    Intent i = new Intent(CalendarActivity.this, SuggestionActivity.class);
+                    i.putExtra(SuggestionActivity.DATE, today);
+                    CalendarActivity.this.startActivity(i);
+                    //open(v);
 
                 }
             });
@@ -102,15 +104,6 @@ public class CalendarActivity extends AppCompatActivity {
 
                     new GetData(today).execute();
 
-                }
-            });
-        }
-        if (thesaurus != null) {
-            thesaurus.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Intent i = new Intent(CalendarActivity.this, SuggestionActivity.class);
-                    CalendarActivity.this.startActivity(i);
                 }
             });
         }
@@ -308,11 +301,11 @@ public class CalendarActivity extends AppCompatActivity {
             final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
                     CalendarActivity.this,
                     android.R.layout.select_dialog_singlechoice);
-
+            int counter = 1;
             for (String[] el : res) {
-                arrayAdapter.add(el[1]);
+                arrayAdapter.add(counter + ")" + el[2] + "  " + el[1]);
                 System.out.println(el[1]);
-
+                counter++;
             }
 
 

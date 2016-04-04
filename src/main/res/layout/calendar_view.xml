@@ -43,18 +43,10 @@
 
     <ImageButton
         android:id="@+id/searchButton"
-        android:layout_width="60dp"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_toEndOf="@+id/deleteButton"
         android:src="@android:drawable/ic_menu_search" />
-
-    <Button
-        android:id="@+id/thesaurus"
-        android:layout_width="70dp"
-        android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/searchButton"
-        android:layout_marginLeft="300dp"
-        android:text="Thesaurus" />
 
 </RelativeLayout>

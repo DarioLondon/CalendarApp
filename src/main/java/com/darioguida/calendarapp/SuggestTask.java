@@ -3,6 +3,11 @@ package com.darioguida.calendarapp;
 import android.util.Log;
 import android.util.Xml;
 
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -12,6 +17,10 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
 public class SuggestTask implements Runnable {
     private static final String TAG = "SuggestTask";
@@ -52,7 +61,7 @@ public class SuggestTask implements Runnable {
 
             // Build RESTful query for Google API
             String q = URLEncoder.encode(original, "UTF-8");
-            URL url = new URL("http://thesaurus.altervista.org/thesaurus/v1?" + q + "=war&language=en_US&key=gB5tplzjJee641pjQDmL&output=xml");
+            URL url = new URL("http://thesaurus.altervista.org/thesaurus/v1?word=" + q + "&language=en_US&key=gB5tplzjJee641pjQDmL&output=xml");
             con = (HttpURLConnection) url.openConnection();
             con.setReadTimeout(10000 /* milliseconds */);
             con.setConnectTimeout(15000 /* milliseconds */);
@@ -70,21 +79,43 @@ public class SuggestTask implements Runnable {
             // Read results from the query
             XmlPullParser parser = Xml.newPullParser();
             parser.setInput(con.getInputStream(), null);
-            int eventType = parser.getEventType();
-            while (eventType != XmlPullParser.END_DOCUMENT) {
-                String name = parser.getName();
-                if (eventType == XmlPullParser.START_TAG
-                        && name.equalsIgnoreCase("synonyms")) {
-                    for (int i = 0; i < parser.getAttributeCount(); i++) {
-                        if (parser.getAttributeName(i).equalsIgnoreCase(
-                                "data")) {
-                            messages.add(parser.getAttributeValue(i));
-                        }
-                    }
-                }
-                eventType = parser.next();
+            DocumentBuilderFactory docBuilderFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = null;
+            try {
+                docBuilder = docBuilderFactory.newDocumentBuilder();
+            } catch (ParserConfigurationException e) {
+                e.printStackTrace();
             }
+            Document doc = null;
+            try {
+                doc = docBuilder.parse(con.getInputStream(), null);
+            } catch (SAXException e) {
+                e.printStackTrace();
+            }
+            NodeList list = doc.getElementsByTagName("list");
+            int totalList = list.getLength();
 
+
+            for (int i = 0; i < list.getLength(); i++) {
+
+                Node firstBookNode = list.item(i);
+                if (firstBookNode.getNodeType() == Node.ELEMENT_NODE) {
+
+                    Element firstElement = (Element) firstBookNode;
+
+
+                    //-------
+                    NodeList firstNameList = firstElement.getElementsByTagName("synonyms");
+                    Element firstNameElement = (Element) firstNameList.item(0);
+
+                    NodeList textFNList = firstNameElement.getChildNodes();
+                    String[] s = textFNList.item(0).getNodeValue().trim().split("[\\s+|,\\s*|\\.\\s*\\s(\\s)]");
+                    for (String l : s) {
+                        messages.add(l);
+                    }
+
+                }
+            }
             // Check if task has been interrupted
             if (Thread.interrupted())
                 throw new InterruptedException();
@@ -120,6 +151,8 @@ public class SuggestTask implements Runnable {
         }
 
         // All done
+        //Log.d(TAG, "   -> returned " + messages);
+
         Log.d(TAG, "   -> returned " + messages);
         return messages;
     }

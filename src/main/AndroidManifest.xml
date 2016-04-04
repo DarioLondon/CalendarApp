@@ -20,7 +20,9 @@
         <activity android:name=".DeleteActivity"></activity>
         <activity android:name=".SearchActivity"></activity>
         <activity android:name=".ViewEvent"></activity>
-        <activity android:name=".SuggestionActivity"></activity>
+        <activity
+            android:name=".SuggestionActivity"
+            android:windowSoftInputMode="adjustResize"></activity>
 
 
     </application>

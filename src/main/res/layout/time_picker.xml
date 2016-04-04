@@ -14,5 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:layoutMode="clipBounds"
+        android:scaleX="0.8"
+        android:scaleY="0.8"
         android:timePickerMode="spinner" />
 </LinearLayout>
